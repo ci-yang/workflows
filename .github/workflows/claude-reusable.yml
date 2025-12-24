@@ -1,0 +1,50 @@
+name: Claude Code (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      trigger_phrase:
+        description: '觸發詞'
+        required: false
+        type: string
+        default: '@claude'
+      max_turns:
+        description: '最大對話回合數'
+        required: false
+        type: number
+        default: 10
+    secrets:
+      CLAUDE_ACCESS_TOKEN:
+        required: true
+      CLAUDE_REFRESH_TOKEN:
+        required: true
+      CLAUDE_EXPIRES_AT:
+        required: true
+      SECRETS_ADMIN_PAT:
+        required: true
+
+jobs:
+  claude:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude Code
+        uses: grll/claude-code-action@beta
+        with:
+          use_oauth: "true"
+          claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
+          claude_refresh_token: ${{ secrets.CLAUDE_REFRESH_TOKEN }}
+          claude_expires_at: ${{ secrets.CLAUDE_EXPIRES_AT }}
+          secrets_admin_pat: ${{ secrets.SECRETS_ADMIN_PAT }}
+          trigger_phrase: ${{ inputs.trigger_phrase }}
+          claude_args: "--max-turns ${{ inputs.max_turns }}"
